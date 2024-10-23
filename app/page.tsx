@@ -1,19 +1,13 @@
-import Image from "next/image";
+import { DropBoxComponent } from "@/components/lecture-notes-converter";
 
 export default function Home() {
   return (
-    <div className="min-h-screen min-w-screen flex">
-      <nav className="flex h-fit w-full p-3 border-gray-500 border-b">
-        <h1 className=" text-3xl font-bold">Lecture Notes Web</h1>
-      </nav>
-      <div>
-        <div>
+    <div className="min-h-screen min-w-screen flex flex-col items-center justify-center">
+      <h1 className="text-4xl font-bold text-primary">Lecture Notes Web</h1>
+      <p>Converti le tue slide in pratici blocchi appunti</p>
 
-        </div>
-        <div>
-
-        </div>
-      </div>
+      <DropBoxComponent />
+      
     </div>
   );
 }
