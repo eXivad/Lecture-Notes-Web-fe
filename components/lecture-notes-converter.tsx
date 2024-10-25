@@ -42,14 +42,12 @@ export function DropBoxComponent() {
   }
 
   const handleSubmit = () => {
-    // Implementare qui la logica per inviare i file al server
-    console.log('Files to convert:', files)
-    // Qui si potrebbe aggiungere una chiamata API per la conversione
+    // Devi usare la Promise.all()
   }
 
   return (
     <div>
-      <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 mb-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}>
+      <div {...getRootProps()} className={`-full border-2 border-dashed rounded-lg p-8 mb-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary'}`}>
         <input {...getInputProps()} />
         <Upload className="mx-auto mb-2" size={24} />
         <p>{isDragActive ? "Rilascia i file qui" : "Trascina i file PDF qui, o clicca per selezionarli"}</p>
@@ -72,7 +70,7 @@ export function DropBoxComponent() {
                     <SelectItem value="grid">Quadretti</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="ghost" size="icon" onClick={() => handleRemoveFile(index)} className="ml-2">
+                <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="ml-2">
                   <Trash2 size={18} />
                 </Button>
               </li>
