@@ -2,23 +2,33 @@
 
 import React, { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Trash2, Upload } from 'lucide-react'
+import { Trash2, Upload, LoaderCircle } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+enum PaperType{
+  Blank = 'Blank',
+  Lined = "Lined",
+  Grid = "Grid"
+}
+
 type FileWithOptions = {
   file: File;
-  paperType: 'blank' | 'lined' | 'grid';
+  fileConverted?: String
+  paperType: PaperType;
+  isConverting?: boolean
+  errorConverting?: boolean
 }
 
 export function DropBoxComponent() {
   const [files, setFiles] = useState<FileWithOptions[]>([])
+  const [isConverting, setIsConverting] = useState<boolean>(false)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(prevFiles => [
       ...prevFiles,
-      ...acceptedFiles.map(file => ({ file, paperType: 'blank' as const }))
+      ...acceptedFiles.map(file => ({ file, paperType: PaperType.Blank}))
     ])
   }, [])
 
@@ -29,7 +39,7 @@ export function DropBoxComponent() {
     }
   })
 
-  const handlePaperTypeChange = (fileIndex: number, paperType: 'blank' | 'lined' | 'grid') => {
+  const handlePaperTypeChange = (fileIndex: number, paperType: PaperType) => {
     setFiles(prevFiles => 
       prevFiles.map((file, index) => 
         index === fileIndex ? { ...file, paperType } : file
@@ -41,8 +51,45 @@ export function DropBoxComponent() {
     setFiles(prevFiles => prevFiles.filter((_, index) => index !== fileIndex))
   }
 
-  const handleSubmit = () => {
-    // Devi usare la Promise.all()
+  const convertFile = async (file: FileWithOptions) => {
+    const formData = new FormData()
+    formData.append('pdftoconvert', file.file)
+    formData.append('paper_type', file.paperType)
+
+    file.isConverting = true
+    const response: Response = await fetch(process.env.NEXT_PUBLIC_API_CONVERTER_SITE!, {
+      method: 'POST',
+      mode: 'cors',
+      body: formData
+    })
+
+    if (!response.ok){
+      file.errorConverting = true
+      throw new Error('Errore durante la conversione del file')
+    }
+
+    const fileConvertedData = await response.json()
+
+    if (!fileConvertedData){
+      file.errorConverting = true
+      throw new Error('Errore durante la conversione del file')
+    }
+
+    file.isConverting = false
+    file.fileConverted = fileConvertedData.download_link
+  }
+
+  const handleSubmit = async () => {
+
+    setIsConverting(true)
+    try {
+      await Promise.all(files.map(file => convertFile(file)))
+      console.log('Tutti i file sono stati convertiti con successo')
+    } catch (error) {
+      console.error('Errore durante la conversione dei file:', error)
+    } finally {
+      setIsConverting(false)
+    }
   }
 
   return (
@@ -60,14 +107,15 @@ export function DropBoxComponent() {
             {files.map((file, index) => (
               <li key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
                 <span className="truncate flex-grow mr-2">{file.file.name}</span>
-                <Select value={file.paperType} onValueChange={(value: 'blank' | 'lined' | 'grid') => handlePaperTypeChange(index, value)}>
+                
+                <Select value={file.paperType} onValueChange={(value: PaperType) => handlePaperTypeChange(index, value)}>
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder="Tipo di carta" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="blank">Bianco</SelectItem>
-                    <SelectItem value="lined">Righe</SelectItem>
-                    <SelectItem value="grid">Quadretti</SelectItem>
+                    {Object.values(PaperType).map( (type) => (
+                      <SelectItem value={type}>{type}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="ml-2">
@@ -79,8 +127,15 @@ export function DropBoxComponent() {
         </div>
       )}
 
-      <Button onClick={handleSubmit} disabled={files.length === 0} className="w-full">
-        Converti File
+      <Button onClick={handleSubmit} disabled={files.length === 0 || isConverting} className="w-full">
+        {isConverting ? 
+        <>
+          Convertendo
+          <LoaderCircle size={18} className='animate-spin'/>
+        </>
+        :
+        <>Converti File</>
+        }
       </Button>
     </div>
   )
