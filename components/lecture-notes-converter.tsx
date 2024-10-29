@@ -6,6 +6,7 @@ import { Trash2, Upload, LoaderCircle } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from './ui/badge'
 
 enum PaperType{
   Blank = 'Blank',
@@ -57,6 +58,7 @@ export function DropBoxComponent() {
     formData.append('paper_type', file.paperType)
 
     file.isConverting = true
+    /*
     const response: Response = await fetch(process.env.NEXT_PUBLIC_API_CONVERTER_SITE!, {
       method: 'POST',
       mode: 'cors',
@@ -77,6 +79,8 @@ export function DropBoxComponent() {
 
     file.isConverting = false
     file.fileConverted = fileConvertedData.download_link
+    */
+    // TODO: Devi provare a capire se i badge funzionano facendo attenzione a cambiare le opzioni con setFiles
   }
 
   const handleSubmit = async () => {
@@ -105,8 +109,8 @@ export function DropBoxComponent() {
           <h2 className="text-xl font-semibold mb-3">File caricati</h2>
           <ul className="space-y-3">
             {files.map((file, index) => (
-              <li key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
-                <span className="truncate flex-grow mr-2">{file.file.name}</span>
+              <li key={index} className="flex items-center justify-between gap-2 p-3 rounded-lg border">
+                <span className="truncate flex-grow">{file.file.name}</span>
                 
                 <Select value={file.paperType} onValueChange={(value: PaperType) => handlePaperTypeChange(index, value)}>
                   <SelectTrigger className="w-32">
@@ -118,7 +122,11 @@ export function DropBoxComponent() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="ml-2">
+                <Badge className="rounded-full" variant={file.errorConverting ? "destructive" : "secondary"}>
+                  {file.isConverting ? <>Convertendo <LoaderCircle className='animate-spin'/></> : <>Aggiunto</>}
+                  {file.errorConverting ? <>Errore</> : <></>}
+                </Badge>
+                <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="">
                   <Trash2 size={18} />
                 </Button>
               </li>
