@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from './ui/badge'
 
+const API_SITE = "https://davidetarulli.pythonanywhere.com"
+
 enum PaperType{
   Blank = 'Blank',
   Lined = "Lined",
@@ -62,7 +64,7 @@ export function DropBoxComponent() {
     )
 
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_CONVERTER_SITE!+files[fileIndex].fileConverted)
+      const response = await fetch(API_SITE+files[fileIndex].fileConverted)
       if (!response.ok) {
         throw new Error('Errore durante il download del file')
       }
@@ -96,7 +98,7 @@ export function DropBoxComponent() {
     )
 
     try{
-      const response: Response = await fetch(process.env.NEXT_PUBLIC_API_CONVERTER_SITE!+"/generate", {
+      const response: Response = await fetch(API_SITE!+"/generate", {
         method: 'POST',
         mode: 'cors',
         body: formData
