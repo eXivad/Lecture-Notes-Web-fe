@@ -16,7 +16,7 @@ enum PaperType{
 
 type FileWithOptions = {
   file: File;
-  fileConverted?: String
+  fileConverted?: string
   paperType: PaperType;
   isConverting?: boolean
   errorConverting?: boolean
@@ -170,7 +170,7 @@ export function DropBoxComponent() {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.values(PaperType).map( (type) => (
-                      <SelectItem value={type}>{type}</SelectItem>
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
