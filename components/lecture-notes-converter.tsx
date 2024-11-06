@@ -180,15 +180,18 @@ export function DropBoxComponent() {
                   {file.errorConverting ? <>Errore</> : null}
                   {!file.isConverting && !file.errorConverting && !file.fileConverted ? <>Aggiunto</> : null}
                 </Badge>
-                {!file.fileConverted ? 
-                  <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="">
-                    <Trash2 size={18} />
-                  </Button>
-                  :
+                {file.fileConverted ? 
                   <Button disabled={file.downloaded} onClick={() => handleDownloadFile(index)}>
                     <Download size={18}/>
                     {!file.downloaded ? "Scarica" : "Scaricato"}
-                  </Button>                
+                  </Button>
+                  :
+                  file.errorConverting ?
+                  <></>
+                  :
+                  <Button variant="destructive" size="icon" onClick={() => handleRemoveFile(index)} className="">
+                    <Trash2 size={18} />
+                  </Button>
                 }
                 
               </li>
